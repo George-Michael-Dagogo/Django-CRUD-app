@@ -14,9 +14,11 @@ class Post(models.Model):
 
 
 class Comment(models.Model):
-    post = models.ForeignKey(Post,related_name = "comments", on_delete=models.CASCADE,default=0)
+    post = models.ForeignKey(Post,related_name = "comments", on_delete=models.CASCADE)
     author = models.CharField(max_length = 255)
     body = models.TextField()
 
     def __str__(self):
-        return '%s - %s' % (self.post.title,self.author)
+        return f'Comment by {self.author} on {self.post}'
+   
+ 

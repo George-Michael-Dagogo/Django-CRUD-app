@@ -1,9 +1,10 @@
 from django.shortcuts import render,redirect
-from .models import Post
+from .models import Post, Comment
 from django.urls import reverse_lazy
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
 from django.forms import inlineformset_factory
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.auth import authenticate, login, logout
 
@@ -13,7 +14,7 @@ from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 from .models import *
-from .forms import CreateUserForm
+from .forms import CommentForm, CreateUserForm
 
 def registerPage(request):
     if request.user.is_authenticated:
@@ -57,25 +58,48 @@ def logoutUser(request):
     return redirect('login')
 
 # Create your views here.
+class BlogCommentView(CreateView, LoginRequiredMixin):
+    login_url = '/login/'
+    redirect_field_name = 'redirect_to'
+    model = Comment
+    form_class = CommentForm
+    template_name= 'add_comment.html'
+    def form_valid(self, form):
+        form.instance.post_id = self.kwargs['pk']
+        return super().form_valid(form)
 
-class BlogListView(ListView):
+    success_url = reverse_lazy('home')
+
+    #fields = ['post','author','body']
+
+class BlogListView(ListView, LoginRequiredMixin):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Post
     template_name = 'home.html'
 
-class BlogDetailView(DetailView):
+class BlogDetailView(DetailView, LoginRequiredMixin):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Post
     template_name = 'post_detail.html'
 
-class BlogCreateView(CreateView):
+class BlogCreateView(CreateView, LoginRequiredMixin):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Post
     template_name= 'post_new.html'
     fields = ['title','author','body']
 
-class BlogUpdateView(UpdateView):
+class BlogUpdateView(UpdateView, LoginRequiredMixin):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Post
     template_name = 'post_edit.html'
     fields = ['title','body']
-class BlogDeleteView(DeleteView):
+class BlogDeleteView(DeleteView, LoginRequiredMixin):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Post
     template_name = 'post_delete.html'
     success_url = reverse_lazy('home')
