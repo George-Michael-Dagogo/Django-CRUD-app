@@ -3,9 +3,9 @@ from .models import Post, Comment
 from django.urls import reverse_lazy
 from django.views.generic import ListView,DetailView,CreateView,UpdateView,DeleteView
 from django.forms import inlineformset_factory
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import PasswordChangeForm, UserCreationForm, PasswordChangeForm 
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.auth import authenticate, login, logout
 
 from django.contrib import messages
@@ -58,6 +58,13 @@ def logoutUser(request):
     return redirect('login')
 
 # Create your views here.
+class PasswordsChangeView(PasswordChangeView):
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy('password_success')
+
+def password_success(request):
+    return render (request, "password_success.html", {})
+
 class BlogCommentView(CreateView, LoginRequiredMixin):
     login_url = '/login/'
     redirect_field_name = 'redirect_to'
